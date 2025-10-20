@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+/* -------------------------------------- */
+/* 1. GRUNDSTYLING & FONTEN */
+/* -------------------------------------- */
+body {
+    font-family: Arial, sans-serif;
+    /* Hintergrund: Sehr helles Creme/Gelb */
+    background-color: #fcfcf5; 
+    color: #333;
+    display: flex;
+    justify-content: center; 
+    padding: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+.container {
+    background: #ffffff; 
+    padding: 25px 40px;
+    /* BREITERER CONTAINER (wie gewünscht) */
+    max-width: 1400px; 
+    width: 90%; 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+    border: 1px solid #004499; /* Dunkelblauer Rahmen */
+    border-radius: 8px;
+    text-align: left; 
+} 
+h2 {
+    /* Titel: Dunkelblau */
+    color: #004499; 
+    /* Trennlinie: Golden */
+    border-bottom: 2px solid #FFC300; 
+    padding-bottom: 10px;
+}
+
+/* -------------------------------------- */
+/* 2. INPUTS & LABELS */
+/* -------------------------------------- */
+label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+    color: #555;
+    font-size: 0.95em;
+}
+input[type=number], select {
+    width: 100%; 
+    padding: 8px; 
+    margin-top: 3px;
+    box-sizing: border-box;
+    /* Input-Rahmen: Goldener Akzent */
+    border: 1px solid #FFC300; 
+    border-radius: 4px;
+}
+
+/* -------------------------------------- */
+/* 3. LAYOUT (GRID) */
+/* -------------------------------------- */
+.input-grid {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 25px;       
+    margin-bottom: 20px;
+    justify-content: flex-start;
+}
+
+.input-column {
+    flex: 1; 
+    min-width: 300px; 
+}
+.input-column h4 {
+    /* Spaltentitel Trennlinie: Helleres Blau */
+    border-bottom: 1px solid #0077cc; 
+    padding-bottom: 5px;
+    /* Spaltentitel: Dunkelblau */
+    color: #004499; 
+    font-size: 1.1em;
+}
+
+/* -------------------------------------- */
+/* 4. DETAILS/TABS & TABELLEN */
+/* -------------------------------------- */
+details {
+    background: #fcfcfc;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+summary {
+    font-size: 1.3em;
+    cursor: pointer;
+    font-weight: bold;
+    /* Summary-Titel: Dunkelblau */
+    color: #004499; 
+    padding: 5px 0;
+}
+summary:hover {
+    color: #0077cc;
+}
+
+/* Ergebnis-Tabelle Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    table-layout: fixed;
+}
+th, td {
+    border: 1px solid #e0e0e0;
+    padding: 10px 8px;
+    text-align: center;
+    overflow-wrap: break-word; 
+   box-sizing: border-box;  
+}
+th {
+    /* Tabellen-Kopfzeile: Helleres Blau */
+    background-color: #e6f0ff; 
+    /* Text: Dunkelblau */
+    color: #004499; 
+}
+td:first-child {
+    text-align: left;
+    font-weight: bold;
+    background-color: #f9f9f9;
+    width: 40%; 
+}
+
+/* Zweite und dritte Spalte gleich breit */
+th:nth-child(2), td:nth-child(2),
+th:nth-child(3), td:nth-child(3) {
+  width: 30%;  /* Gleich große Spalten für Ausgabe */
+}
+
+/* Optional: Die Ergebniswerte hervorheben */
+td:not(:first-child) {
+    /* Ergebnis-Zellen: Sehr helles Gold/Gelb */
+    background-color: #FFFDE6; 
+    font-weight: 600;
+}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+    <h2>Ameas Feldertragsrechner</h2>
+
+    <div id="fehler"></div>
+    <div id="ergebnis"></div> 
+
+    <details open>
+      <summary>🥕 Gemüsefeld</summary>
+        
+        <div class="input-grid">
+            
+            <div class="input-column">
+              <h4>Talente</h4>
+              <label for="gemuese_landwirt">Landwirt Skill:</label>
+              <select id="gemuese_landwirt" onchange="berechneFeldErtrag('gemuese');">
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5" selected>5 </option>
+              </select>
+              
+              <label for="gemuese_ernteheiliger">Ernteheiliger Skill-Level:</label>
+              <select id="gemuese_ernteheiliger" onchange="berechneFeldErtrag('gemuese');">
+                  <option value="0" selected>0</option>
+                  <option value="2">2 (2% Chance auf Doppelte)</option>
+                  <option value="5">5 (5% Chance auf Doppelte)</option>
+              </select>
+
+
+            </div>
+
+            <div class="input-column">
+                
+                <h4>Ernte</h4>
+                
+                <label for="gemuese_ernte_umweltschutz">Umweltschutz-Bonus:</label>
+                <select id="gemuese_ernte_umweltschutz" onchange="berechneFeldErtrag('gemuese');">
+                    <option value="keiner" selected>Keiner</option>
+                    <option value="klein">Klein (+1%)</option> 
+                    <option value="gross">Groß (+4%)</option> 
+                </select>
+
+                <label for="gemuese_ernte_arbeiterpunkte" style="margin-top: 20px;">Arbeiterpunkte (0-19):</label>
+                <input type="number" id="gemuese_ernte_arbeiterpunkte" value="19" min="0" max="19" oninput="berechneFeldErtrag('gemuese');">
+
+                <label for="gemuese_ernte_werkzeug">Werkzeug (Sense/Kanne):</label>
+                <select id="gemuese_ernte_werkzeug" onchange="berechneFeldErtrag('gemuese');">
+                  <option value="keine" selected>Keine </option>
+                  <option value="giesskanne">Gießkanne (+20%)</option>
+                  <option value="sense">Sense (+10%)</option>
+                </select>
+
+            </div>
+            
+        </div>
+        <table id="tabelle_gemuese">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Erstfeld</th>
+                    <th>Zweitfeld</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ertrag</td>
+                    <td id="gemuese_erst_ohne"></td>
+                    <td id="gemuese_zweit_ohne"></td>
+                </tr>
+                <tr>
+                    <td>Ertrag - Ernteheiliger</td>
+                    <td id="gemuese_erst_mit"></td>
+                    <td id="gemuese_zweit_mit"></td>
+                </tr>
+            </tbody>
+        </table>
+    </details>
+
+    <details>
+      <summary>🌽 Maisfeld</summary>
+        <div class="input-grid">
+            
+            <div class="input-column">
+              <h4>Talente</h4>
+              <label for="mais_landwirt">Landwirt Skill:</label>
+              <select id="mais_landwirt" onchange="berechneFeldErtrag('mais');">
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5" selected>5 </option>
+              </select>
+              
+              <label for="mais_ernteheiliger">Ernteheiliger Skill-Level:</label>
+              <select id="mais_ernteheiliger" onchange="berechneFeldErtrag('mais');">
+                  <option value="0" selected>0</option>
+                  <option value="2">2 (2% Chance auf Doppelte)</option>
+                  <option value="5">5 (5% Chance auf Doppelte)</option>
+              </select>
+
+              <label for="mais_verstand">Bäuerlicher Menschenverstand:</label>
+              <input 
+                  type="checkbox" 
+                  value="mais_verstand" 
+                  id="mais_verstand"
+                  checked             disabled            >
+
+            </div>
+
+            <div class="input-column">
+                
+                <h4>Pflügen+Säen</h4>
+                
+                <label for="mais_pflug_umweltschutz">Umweltschutz-Bonus:</label>
+                <select id="mais_pflug_umweltschutz" onchange="berechneFeldErtrag('mais');">
+                    <option value="keiner" selected>Keiner</option>
+                    <option value="klein">Klein (+1%)</option> 
+                    <option value="gross">Groß (+4%)</option> 
+                </select>
+
+                <label for="mais_pflug_arbeiterpunkte" style="margin-top: 20px;">Arbeiterpunkte (0-19):</label>
+                <input type="number" id="mais_pflug_arbeiterpunkte" value="19" min="0" max="19" oninput="berechneFeldErtrag('mais');">
+
+                <label for="mais_pflug_werkzeug">Werkzeug (Pflug):</label>
+                <select id="mais_pflug_werkzeug" onchange="berechneFeldErtrag('mais');">
+                  <option value="keine" selected>Keine </option>
+                  <option value="pflug">Pflug (+20%)</option>
+                </select>
+
+            </div>
+
+
+            <div class="input-column">
+                
+                <h4>Ernte</h4>
+                
+                <label for="mais_ernte_umweltschutz">Umweltschutz-Bonus:</label>
+                <select id="mais_ernte_umweltschutz" onchange="berechneFeldErtrag('mais');">
+                    <option value="keiner" selected>Keiner</option>
+                    <option value="klein">Klein (+1%)</option> 
+                    <option value="gross">Groß (+4%)</option> 
+                </select>
+
+                <label for="mais_ernte_arbeiterpunkte" style="margin-top: 20px;">Arbeiterpunkte (0-19):</label>
+                <input type="number" id="mais_ernte_arbeiterpunkte" value="19" min="0" max="19" oninput="berechneFeldErtrag('mais');">
+
+                <label for="mais_ernte_werkzeug">Werkzeug (Sense/Kanne):</label>
+                <select id="mais_ernte_werkzeug" onchange="berechneFeldErtrag('mais');">
+                  <option value="keine" selected>Keine </option>
+                  <option value="giesskanne">Gießkanne (+20%)</option>
+                  <option value="sense">Sense (+10%)</option>
+                </select>
+
+            </div>
+            
+        </div>
+        <table id="tabelle_mais">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Erstfeld</th>
+                    <th>Zweitfeld</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ertrag</td>
+                    <td id="mais_erst_ohne"></td>
+                    <td id="mais_zweit_ohne"></td>
+                </tr>
+                <tr>
+                    <td>Ertrag - Bauernverstand</td>
+                    <td id="mais_erst_bauer"></td>
+                    <td id="mais_zweit_bauer"></td>
+                </tr>
+				                <tr>
+                    <td>Ertrag - Ernteheiliger</td>
+                    <td id="mais_erst_mit"></td>
+                    <td id="mais_zweit_mit"></td>
+                </tr>
+                <tr>
+                    <td>Ertrag - Bauernverstand + Ernteheiliger</td>
+                    <td id="mais_erst_bauermit"></td>
+                    <td id="mais_zweit_bauermit"></td>
+                </tr>
+            </tbody>
+        </table>
+    </details>
+
+    <details>
+      <summary>🌾 Weizenfeld</summary>
+<div class="input-grid">
+            
+            <div class="input-column">
+              <h4>Talente</h4>
+              <label for="weizen_landwirt">Landwirt Skill:</label>
+              <select id="weizen_landwirt" onchange="berechneFeldErtrag('weizen');">
+                  <option value="0">0</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5" selected>5 </option>
+              </select>
+              
+              <label for="weizen_ernteheiliger">Ernteheiliger Skill-Level:</label>
+              <select id="weizen_ernteheiliger" onchange="berechneFeldErtrag('weizen');">
+                  <option value="0" selected>0</option>
+                  <option value="2">2 (2% Chance auf Doppelte)</option>
+                  <option value="5">5 (5% Chance auf Doppelte)</option>
+              </select>
+
+              <label for="weizen_verstand">Bäuerlicher Menschenverstand:</label>
+              <input 
+                  type="checkbox" 
+                  value="weizen_verstand" 
+                  id="weizen_verstand"
+                  checked             disabled            >
+
+            </div>
+
+            <div class="input-column">
+                
+                <h4>Pflügen</h4>
+                
+                <label for="weizen_pflug_umweltschutz">Umweltschutz-Bonus:</label>
+                <select id="weizen_pflug_umweltschutz" onchange="berechneFeldErtrag('weizen');">
+                    <option value="keiner" selected>Keiner</option>
+                    <option value="klein">Klein (+1%)</option> 
+                    <option value="gross">Groß (+4%)</option> 
+                </select>
+
+                <label for="weizen_pflug_arbeiterpunkte" style="margin-top: 20px;">Arbeiterpunkte (0-19):</label>
+                <input type="number" id="weizen_pflug_arbeiterpunkte" value="19" min="0" max="19" oninput="berechneFeldErtrag('weizen');">
+
+                <label for="weizen_pflug_werkzeug">Werkzeug (Pflug):</label>
+                <select id="weizen_pflug_werkzeug" onchange="berechneFeldErtrag('weizen');">
+                  <option value="keine" selected>Keine </option>
+                  <option value="pflug">Pflug (+20%)</option>
+                </select>
+
+            </div>
+
+            <div class="input-column">
+                
+                <h4>Säen</h4>
+                
+                <label for="weizen_sae_umweltschutz">Umweltschutz-Bonus:</label>
+                <select id="weizen_sae_umweltschutz" onchange="berechneFeldErtrag('weizen');">
+                    <option value="keiner" selected>Keiner</option>
+                    <option value="klein">Klein (+1%)</option> 
+                    <option value="gross">Groß (+4%)</option> 
+                </select>
+
+                <label for="weizen_sae_arbeiterpunkte" style="margin-top: 20px;">Arbeiterpunkte (0-19):</label>
+                <input type="number" id="weizen_sae_arbeiterpunkte" value="19" min="0" max="19" oninput="berechneFeldErtrag('weizen');">
+
+            </div>
+
+
+            <div class="input-column">
+                
+                <h4>Ernte</h4>
+                
+                <label for="weizen_ernte_umweltschutz">Umweltschutz-Bonus:</label>
+                <select id="weizen_ernte_umweltschutz" onchange="berechneFeldErtrag('weizen');">
+                    <option value="keiner" selected>Keiner</option>
+                    <option value="klein">Klein (+1%)</option> 
+                    <option value="gross">Groß (+4%)</option> 
+                </select>
+
+                <label for="weizen_ernte_arbeiterpunkte" style="margin-top: 20px;">Arbeiterpunkte (0-19):</label>
+                <input type="number" id="weizen_ernte_arbeiterpunkte" value="19" min="0" max="19" oninput="berechneFeldErtrag('weizen');">
+
+                <label for="weizen_ernte_werkzeug">Werkzeug (Sense/Kanne):</label>
+                <select id="weizen_ernte_werkzeug" onchange="berechneFeldErtrag('weizen');">
+                  <option value="keine" selected>Keine </option>
+                  <option value="giesskanne">Gießkanne (+20%)</option>
+                  <option value="sense">Sense (+10%)</option>
+                </select>
+
+            </div>
+            
+        </div>
+        <table id="tabelle_weizen">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Erstfeld</th>
+                    <th>Zweitfeld</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Ertrag</td>
+                    <td id="weizen_erst_ohne"></td>
+                    <td id="weizen_zweit_ohne"></td>
+                </tr>
+                <tr>
+                    <td>Ertrag - Bauernverstand</td>
+                    <td id="weizen_erst_bauer"></td>
+                    <td id="weizen_zweit_bauer"></td>
+                </tr>
+				<tr>
+                    <td>Ertrag - Doppelter Bauernverstand</td>
+                    <td id="weizen_erst_doppelbauer"></td>
+                    <td id="weizen_zweit_doppelbauer"></td>
+                </tr>
+				                <tr>
+                    <td>Ertrag - Ernteheiliger</td>
+                    <td id="weizen_erst_mit"></td>
+                    <td id="weizen_zweit_mit"></td>
+                </tr>
+                <tr>
+                    <td>Ertrag - Bauernverstand + Ernteheiliger</td>
+                    <td id="weizen_erst_bauermit"></td>
+                    <td id="weizen_zweit_bauermit"></td>
+                </tr>
+				<tr>
+				    <td>Ertrag - Doppelter Bauernverstand + Ernteheiliger</td>
+                    <td id="weizen_erst_doppelbauermit"></td>
+                    <td id="weizen_zweit_doppelbauermit"></td>
+                </tr>
+            </tbody>
+        </table>     
+    </details>
+
+
+    <script>
+
+// --- 1. DATENSTRUKTUR ---
+
+const FELD_KONFIGURATION = {
+
+    // 1. GEMÜSEFELD
+    'gemuese': { 
+        grundErtrag: 4, 
+        globaleBoni: {
+            start_multiplikator: 0.5, // 50% Startwert
+            erstfeld_bonus: 0.25, 
+            landwirt_pro_stufe: 0.05,
+            werkzeug_giesskanne: 0.20,
+            werkzeug_sense: 0.10,
+            werkzeug_pflug: 0.20, // Hinzugefügt für Konsistenz
+            ernteheiliger_erfolg_multiplikator: 2.0,
+            bauer_verstand_bonus: 0.15,
+            doppel_bauer_verstand_bonus: 0.30
+        },
+        arbeitsschritte: [
+            {
+                name: 'Ernten',
+                id: 'ernte', 
+                boni: {
+                    umweltschutz_klein: 0.01, 
+                    umweltschutz_gross: 0.04, 
+                    arbeiter_pro_punkt: 0.0025
+                }
+            }
+        ]
+    },
+    
+    // 2. MAISFELD 
+    'mais': { 
+        grundErtrag: 19, 
+        globaleBoni: {
+            start_multiplikator: 0.5, erstfeld_bonus: 0.25, landwirt_pro_stufe: 0.05, werkzeug_pflug: 0.20,
+            werkzeug_giesskanne: 0.20, werkzeug_sense: 0.10, ernteheiliger_erfolg_multiplikator: 2.0 ,
+            bauer_verstand_bonus: 0.15,
+            doppel_bauer_verstand_bonus: 0.30 
+        },
+        arbeitsschritte: [
+            { name: 'Pflügen+Säen', id: 'pflug', boni: { umweltschutz_klein: 0.01, umweltschutz_gross: 0.04, arbeiter_pro_punkt: 0.0025 } },
+            { name: 'Ernten', id: 'ernte', boni: { umweltschutz_klein: 0.01, umweltschutz_gross: 0.04, arbeiter_pro_punkt: 0.0025 } }
+        ]
+    },
+
+    // 3. WEIZENFELD
+    'weizen': { 
+        grundErtrag: 8, 
+        globaleBoni: {
+            start_multiplikator: 0.5, erstfeld_bonus: 0.25, landwirt_pro_stufe: 0.05,  werkzeug_pflug: 0.20,
+            werkzeug_giesskanne: 0.20, werkzeug_sense: 0.10, ernteheiliger_erfolg_multiplikator: 2.0 ,
+            bauer_verstand_bonus: 0.15,
+            doppel_bauer_verstand_bonus: 0.30 
+        },
+        arbeitsschritte: [
+            { name: 'Pflügen', id: 'pflug', boni: { umweltschutz_klein: 0.01, umweltschutz_gross: 0.04, arbeiter_pro_punkt: 0.0025 } },
+            { name: 'Säen', id: 'sae', boni: { umweltschutz_klein: 0.01, umweltschutz_gross: 0.04, arbeiter_pro_punkt: 0.0025 } },
+            { name: 'Ernten', id: 'ernte', boni: { umweltschutz_klein: 0.01, umweltschutz_gross: 0.04, arbeiter_pro_punkt: 0.0025 } }
+        ]
+    }
+};
+
+// --- 2. BERECHNUNGSLOGIK ---
+
+function berechneFeldErtrag(feldId) {
+    const config = FELD_KONFIGURATION[feldId];
+    if (!config || !document.getElementById(feldId + '_landwirt')) {
+        return;
+    }
+    const global = config.globaleBoni;
+    
+    // START: Multiplikator beginnt beim Startwert (50% = 0.5)
+    let gesamtMultiplikator = global.start_multiplikator; 
+    
+    // --- 1. GLOBALE BONI ADDITION ---
+    
+    // Landwirt Skill
+    const landwirtStufe = parseInt(document.getElementById(feldId + '_landwirt').value);
+    gesamtMultiplikator += landwirtStufe * global.landwirt_pro_stufe;
+
+    let bauerBonus = 0;
+    let doppelBauerBonus = 0;
+    
+    const verstandCheckbox = document.getElementById(feldId + '_verstand');
+    if (verstandCheckbox && verstandCheckbox.checked) {
+        // Die Checkbox existiert und ist markiert (was bei Mais/Weizen der Fall ist).
+        // Wir setzen die Bonuswerte basierend auf der Konfiguration.
+        bauerBonus = global.bauer_verstand_bonus;      // 0.15 (15%)
+        doppelBauerBonus = global.doppel_bauer_verstand_bonus; // 0.30 (30%)
+    }
+    
+    // --- 2. SCHRITT-SPEZIFISCHE BONI ADDITION ---
+    
+    config.arbeitsschritte.forEach(schritt => {
+        const schrittBoni = schritt.boni;
+        const schrittID = schritt.id; 
+
+        // Umweltschutz (spezifisch für den Schritt)
+        const umweltschutzElement = document.getElementById(`${feldId}_${schrittID}_umweltschutz`);
+        if (umweltschutzElement) {
+            const umweltschutz = umweltschutzElement.value;
+            if (umweltschutz === 'klein') {
+                gesamtMultiplikator += schrittBoni.umweltschutz_klein;
+            } else if (umweltschutz === 'gross') {
+                gesamtMultiplikator += schrittBoni.umweltschutz_gross;
+            }
+        }
+        
+        // Arbeiterpunkte (spezifisch für den Schritt)
+        const arbeiterpunkteElement = document.getElementById(`${feldId}_${schrittID}_arbeiterpunkte`);
+        if (arbeiterpunkteElement) {
+            const arbeiterpunkte = parseInt(arbeiterpunkteElement.value) || 0;
+            
+            // Berechnung durchführen
+            const produkt = arbeiterpunkte * schrittBoni.arbeiter_pro_punkt;
+                
+            // Auf 2 Nachkommastellen runden und zum Gesamtwert addieren
+            gesamtMultiplikator += parseFloat(produkt.toFixed(2));
+        }
+
+        // Werkzeug (KORREKTE Logik: Wird pro Schritt abgefragt)
+        const werkzeugElement = document.getElementById(`${feldId}_${schrittID}_werkzeug`);
+        if (werkzeugElement) {
+            const werkzeug = werkzeugElement.value;
+            if (werkzeug === 'pflug') {
+                gesamtMultiplikator += global.werkzeug_pflug;
+            } else if (werkzeug === 'giesskanne') {
+                gesamtMultiplikator += global.werkzeug_giesskanne;
+            } else if (werkzeug === 'sense') {
+                gesamtMultiplikator += global.werkzeug_sense;
+            }
+        }
+    });
+
+    // --- 3. BERECHNUNG DER FINALEN MULTIPLIER ---
+    
+    const multiplikatorErstfeld = gesamtMultiplikator + global.erstfeld_bonus;
+    const multiplikatorZweitfeld = gesamtMultiplikator; 
+
+   // Bauer Multiplier (Diese Werte enthalten den Bauer-Bonus als ADDITION)
+    const multiplikatorErstfeldBauer = multiplikatorErstfeld + bauerBonus;
+    const multiplikatorZweitfeldBauer = multiplikatorZweitfeld + bauerBonus;
+    
+    // Doppelbauer Multiplier
+    const multiplikatorErstfeldDoppelBauer = multiplikatorErstfeld + doppelBauerBonus;
+    const multiplikatorZweitfeldDoppelBauer = multiplikatorZweitfeld + doppelBauerBonus;
+
+
+    // --- 4. BERECHNUNG DER ERTRÄGE ---
+
+    const grundErtrag = config.grundErtrag;
+    const erfolgFaktor = global.ernteheiliger_erfolg_multiplikator; 
+
+    // Ertrag Basis
+    const erstfeldErtragBasis = grundErtrag * multiplikatorErstfeld;
+    const zweitfeldErtragBasis = grundErtrag * multiplikatorZweitfeld;
+
+    // Ertrag Bauer (Verwendet multiplikatorErstfeldBauer / multiplikatorZweitfeldBauer)
+    const erstfeldErtragBauer = grundErtrag * multiplikatorErstfeldBauer;
+    const zweitfeldErtragBauer = grundErtrag * multiplikatorZweitfeldBauer;
+
+    // Ertrag Doppelbauer
+    const erstfeldErtragDoppelBauer = grundErtrag * multiplikatorErstfeldDoppelBauer;
+    const zweitfeldErtragDoppelBauer = grundErtrag * multiplikatorZweitfeldDoppelBauer;
+
+    // Ertrag mit EH-Erfolg (Basis)
+    const erstfeldErtragMitEH = erstfeldErtragBasis * erfolgFaktor;
+    const zweitfeldErtragMitEH = zweitfeldErtragBasis * erfolgFaktor;
+
+    // Ertrag Bauer mit EH-Erfolg
+    const erstfeldErtragBauerEH = erstfeldErtragBauer * erfolgFaktor;
+    const zweitfeldErtragBauerEH = zweitfeldErtragBauer * erfolgFaktor;
+
+    // Ertrag Doppelbauer mit EH-Erfolg
+    const erstfeldErtragDoppelBauerEH = erstfeldErtragDoppelBauer * erfolgFaktor;
+    const zweitfeldErtragDoppelBauerEH = zweitfeldErtragDoppelBauer * erfolgFaktor;
+
+    
+   // --- 5. TABELLEN-AUSGABE (mit Math.floor()) ---
+    
+    document.getElementById(feldId + '_erst_ohne').textContent = Math.floor(erstfeldErtragBasis);
+    document.getElementById(feldId + '_zweit_ohne').textContent = Math.floor(zweitfeldErtragBasis);
+    
+    document.getElementById(feldId + '_erst_mit').textContent = Math.floor(erstfeldErtragMitEH);
+    document.getElementById(feldId + '_zweit_mit').textContent = Math.floor(zweitfeldErtragMitEH);
+
+    // Bedingte Ausgabe für Mais und Weizen
+    if (feldId === 'mais' || feldId === 'weizen') {
+        // Bauer (15%)
+        const erst_bauer_el = document.getElementById(feldId + '_erst_bauer');
+        if (erst_bauer_el) erst_bauer_el.textContent = Math.floor(erstfeldErtragBauer);
+        const zweit_bauer_el = document.getElementById(feldId + '_zweit_bauer');
+        if (zweit_bauer_el) zweit_bauer_el.textContent = Math.floor(zweitfeldErtragBauer);
+
+        // Bauer mit EH
+        const erst_bauermit_el = document.getElementById(feldId + '_erst_bauermit');
+        if (erst_bauermit_el) erst_bauermit_el.textContent = Math.floor(erstfeldErtragBauerEH);
+        const zweit_bauermit_el = document.getElementById(feldId + '_zweit_bauermit');
+        if (zweit_bauermit_el) zweit_bauermit_el.textContent = Math.floor(zweitfeldErtragBauerEH);
+
+        if (feldId === 'weizen') {
+            // Doppelbauer (30%)
+            const erst_doppelbauer_el = document.getElementById(feldId + '_erst_doppelbauer');
+            if (erst_doppelbauer_el) erst_doppelbauer_el.textContent = Math.floor(erstfeldErtragDoppelBauer);
+            const zweit_doppelbauer_el = document.getElementById(feldId + '_zweit_doppelbauer');
+            if (zweit_doppelbauer_el) zweit_doppelbauer_el.textContent = Math.floor(zweitfeldErtragDoppelBauer);
+
+            // Doppelbauer mit EH
+            const erst_doppelbauermit_el = document.getElementById(feldId + '_erst_doppelbauermit');
+            if (erst_doppelbauermit_el) erst_doppelbauermit_el.textContent = Math.floor(erstfeldErtragDoppelBauerEH);
+            const zweit_doppelbauermit_el = document.getElementById(feldId + '_zweit_doppelbauermit');
+            if (zweit_doppelbauermit_el) zweit_doppelbauermit_el.textContent = Math.floor(zweitfeldErtragDoppelBauerEH);
+        }
+    } else {
+        // Leere oder nicht existierende Elemente für Gemüsefeld, falls vorhanden
+        const elementsToClear = [
+             feldId + '_erst_bauer', feldId + '_zweit_bauer', 
+             feldId + '_erst_doppelbauer', feldId + '_zweit_doppelbauer',
+             feldId + '_erst_bauermit', feldId + '_zweit_bauermit', 
+             feldId + '_erst_doppelbauermit', feldId + '_zweit_doppelbauermit'
+        ];
+        elementsToClear.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = ''; 
+        });
+    }
+}
+
+
+
+// --- 6. INITIALISIERUNG ---
+
+window.onload = function() {
+        const feldIDs = ['gemuese', 'mais', 'weizen']; 
+    feldIDs.forEach(feldId => {
+        berechneFeldErtrag(feldId);
+    });
+};
+    </script>
+  </div>
+  </body>
+</html>
